@@ -1,13 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Route API traffic to the Python serverless function (`api/index.py` → served at `/api` on Vercel).
-  // Defined here instead of `vercel.json` so the deployment is unambiguously a Next.js app (no static-site preset).
-  async rewrites() {
-    return [
-      { source: "/health", destination: "/api" },
-      { source: "/v1/:path*", destination: "/api" },
-    ];
-  },
+  // No `output: "export"` — this must stay a server-side Next.js app (.next output).
+  // API rewrites for FastAPI live in `vercel.json` (single source of truth for the hybrid deploy).
 };
 
 export default nextConfig;

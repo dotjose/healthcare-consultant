@@ -1,7 +1,10 @@
 """
-Vercel serverless entry for the FastAPI backend (ASGI).
+Vercel serverless entry for the FastAPI backend.
 
-Kept at repo root `api/` (not `app/api/`) so Next.js App Router does not treat it as a Route Handler segment.
+Exports a top-level ASGI `app` — Vercel's Python runtime invokes FastAPI directly.
+(Mangum is only needed for AWS API Gateway-style handlers; not required here.)
+
+Kept at repo root `api/` (not `app/api/`) so Next.js App Router does not treat this as a Route Handler.
 
 The backend package lives in `backend/`; we add it to sys.path so `app.main:app` resolves.
 """

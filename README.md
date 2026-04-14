@@ -1,6 +1,6 @@
 # CareTriage AI
 
-Full-stack healthcare intake app: **Next.js** (UI) + **FastAPI** (API). You can deploy **both on Vercel**: use the default **Next.js** framework preset (no `vercel.json` required); **`next.config.mjs`** rewrites `/v1/*` and `/health` to the Python serverless function at **`api/index.py`** (served at `/api`). The same FastAPI app also runs standalone from `backend/` on **Render**, **Railway**, **Fly.io**, or **Cloud Run** if you prefer a long-lived process.
+Full-stack healthcare intake app: **Next.js** (UI) + **FastAPI** (API). You can deploy **both on Vercel** from the repo root: **`vercel.json`** pins **`framework: "nextjs"`** (so the build uses **`.next/`**, not a static **`public/`** output), configures the **`api/index.py`** Python function, and **rewrites** `/v1/*` and `/health` → `/api`. The same FastAPI app also runs standalone from `backend/` on **Render**, **Railway**, **Fly.io**, or **Cloud Run** if you prefer a long-lived process.
 
 ---
 
@@ -92,7 +92,7 @@ This runs `uv run uvicorn ...` inside `backend/` (after you have run `uv sync` t
 
 ### Full stack on Vercel (Next.js + FastAPI serverless)
 
-**Do not** use legacy `vercel.json` **`builds`** / **`version: 2`**, **`outputDirectory`**, or **`@vercel/static-build`** — those skip the normal Next.js pipeline and Vercel may expect a static **`public/`** build output and fail. This repo has **no root `vercel.json`**; **`next.config.mjs`** defines **rewrites** so `/v1/*` and `/health` hit the Python function at **`api/index.py`**.
+**Do not** use legacy `vercel.json` **`builds`** / **`version: 2`**, **`outputDirectory`**, or **`@vercel/static-build`** — those skip the normal Next.js pipeline and Vercel may expect a static **`public/`** build output and fail. This repo uses a **modern** root **`vercel.json`**: **`framework": "nextjs"`**, **`functions`** for **`api/index.py`**, and **`rewrites`** (no `outputDirectory`). **`next.config.mjs`** must **not** set **`output: "export"`**.
 
 **Vercel Dashboard (Project → Settings → General / Build & Deployment):**
 
@@ -103,6 +103,8 @@ This runs `uv run uvicorn ...` inside `backend/` (after you have run `uv sync` t
 - **Install Command:** default (`npm install`).
 
 If you previously set Output Directory to `public` or Framework to “Other”, clear those overrides.
+
+**Error: “No Output Directory named `public` found”:** Your dashboard almost certainly has **Output Directory = `public`**. Next.js does **not** emit the app bundle into `public/` (that folder is only for static assets; build output is **`.next/`**). **Clear Output Directory completely**, set Framework to **Next.js**, redeploy once **without** build cache. The repo includes **`public/robots.txt`** so `public/` exists as a normal Next static folder.
 
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. [Import the project in Vercel](https://vercel.com/new). Root directory = repository root.
@@ -146,8 +148,9 @@ Commit **`backend/uv.lock`** so production uses `uv sync --frozen` and reproduci
 | Path | Purpose |
 |------|---------|
 | `app/`, `components/` | Next.js App Router UI |
-| `next.config.mjs` | Rewrites `/v1/*` and `/health` → `/api` (Python serverless) |
-| `api/index.py` | Vercel Python serverless entry for FastAPI (kept outside `app/` so it is not confused with App Router API routes) |
+| `vercel.json` | `framework: nextjs`, Python `functions` + `rewrites` for `/v1/*` and `/health` → `/api` |
+| `next.config.mjs` | Next.js config only (no static export) |
+| `api/index.py` | Vercel Python serverless ASGI entry for FastAPI (outside `app/` so it is not a Route Handler) |
 | `vercel/env.example` | All env vars mapped for the Vercel dashboard (Next + Python) |
 | `backend/pyproject.toml` | API dependencies (PEP 621) |
 | `backend/uv.lock` | Locked versions for `uv sync --frozen` |
