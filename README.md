@@ -1,6 +1,6 @@
 # CareTriage AI
 
-Full-stack healthcare intake app: **Next.js** (UI) + **FastAPI** (API). You can deploy **both on Vercel**: Next.js via `@vercel/next` and the API as a Python serverless function (`api/index.py` at the repo root → `/v1/*`, `/health`). The same FastAPI app also runs standalone from `backend/` on **Render**, **Railway**, **Fly.io**, or **Cloud Run** if you prefer a long-lived process.
+Full-stack healthcare intake app: **Next.js** (UI) + **FastAPI** (API). You can deploy **both on Vercel**: use the default **Next.js** framework preset (no `vercel.json` required); **`next.config.mjs`** rewrites `/v1/*` and `/health` to the Python serverless function at **`api/index.py`** (served at `/api`). The same FastAPI app also runs standalone from `backend/` on **Render**, **Railway**, **Fly.io**, or **Cloud Run** if you prefer a long-lived process.
 
 ---
 
@@ -92,7 +92,7 @@ This runs `uv run uvicorn ...` inside `backend/` (after you have run `uv sync` t
 
 ### Full stack on Vercel (Next.js + FastAPI serverless)
 
-**Do not** use legacy `vercel.json` `builds` / `version: 2` — that skips the normal Next.js pipeline and Vercel may look for a static **`public/`** output and fail. This repo uses **framework auto-detection** for Next.js (`package.json` + `next build`) and a root **`api/index.py`** Python function with **`rewrites`** so `/v1/*` and `/health` hit FastAPI.
+**Do not** use legacy `vercel.json` **`builds`** / **`version: 2`**, **`outputDirectory`**, or **`@vercel/static-build`** — those skip the normal Next.js pipeline and Vercel may expect a static **`public/`** build output and fail. This repo has **no root `vercel.json`**; **`next.config.mjs`** defines **rewrites** so `/v1/*` and `/health` hit the Python function at **`api/index.py`**.
 
 **Vercel Dashboard (Project → Settings → General / Build & Deployment):**
 
@@ -146,6 +146,7 @@ Commit **`backend/uv.lock`** so production uses `uv sync --frozen` and reproduci
 | Path | Purpose |
 |------|---------|
 | `app/`, `components/` | Next.js App Router UI |
+| `next.config.mjs` | Rewrites `/v1/*` and `/health` → `/api` (Python serverless) |
 | `api/index.py` | Vercel Python serverless entry for FastAPI (kept outside `app/` so it is not confused with App Router API routes) |
 | `vercel/env.example` | All env vars mapped for the Vercel dashboard (Next + Python) |
 | `backend/pyproject.toml` | API dependencies (PEP 621) |
