@@ -2,7 +2,8 @@
 name = "caretriage-api"
 version = "0.1.0"
 description = "CareTriage AI FastAPI backend"
-requires-python = ">=3.11"
+# Keep in sync with repo root `.python-version` (used by uv, Vercel Python, CI).
+requires-python = ">=3.11,<3.14"
 dependencies = [
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",
