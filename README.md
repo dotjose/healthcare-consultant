@@ -92,7 +92,17 @@ This runs `uv run uvicorn ...` inside `backend/` (after you have run `uv sync` t
 
 ### Full stack on Vercel (Next.js + FastAPI serverless)
 
-`vercel.json` uses **legacy `builds`**: `@vercel/next` from `package.json` and `@vercel/python` from `api/index.py`. Routes send **`/v1/*`** and **`/health`** to the Python function; everything else is served by Next (`handle: filesystem` first—do **not** route `/(.*)` only to Python or pages will never load).
+**Do not** use legacy `vercel.json` `builds` / `version: 2` — that skips the normal Next.js pipeline and Vercel may look for a static **`public/`** output and fail. This repo uses **framework auto-detection** for Next.js (`package.json` + `next build`) and a root **`api/index.py`** Python function with **`rewrites`** so `/v1/*` and `/health` hit FastAPI.
+
+**Vercel Dashboard (Project → Settings → General / Build & Deployment):**
+
+- **Framework Preset:** Next.js (or leave “Detect automatically”).
+- **Root Directory:** repository root (empty / `.`).
+- **Build Command:** leave empty or `npm run build` (default).
+- **Output Directory:** leave **empty** — Next.js outputs to `.next/`; do **not** set `public`.
+- **Install Command:** default (`npm install`).
+
+If you previously set Output Directory to `public` or Framework to “Other”, clear those overrides.
 
 1. Push this repo to GitHub/GitLab/Bitbucket.
 2. [Import the project in Vercel](https://vercel.com/new). Root directory = repository root.
